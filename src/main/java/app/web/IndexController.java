@@ -2,8 +2,12 @@ package app.web;
 
 import app.user.model.User;
 import app.user.service.UserService;
+import app.web.dto.RegisterRequest;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -33,8 +37,23 @@ public class IndexController {
     }
 
     @GetMapping("/register")
-    public String getRegisterPage(){
-        return "register";
+    public ModelAndView getRegisterPage(){
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("register");
+        mav.addObject("registerRequest", new RegisterRequest());
+
+        return mav;
+    }
+
+//    Binding result captures validation errors if any
+    @PostMapping("/register")
+    public ModelAndView registerNewUser(@Valid RegisterRequest registerRequest, BindingResult bindingResult){
+        if (bindingResult.hasErrors()){
+            return new ModelAndView("register");
+        }
+        userService.register(registerRequest);
+
+        return new ModelAndView("redirect:/home");
     }
 
     @GetMapping("/home")
